@@ -16,6 +16,7 @@ resource "aws_subnet" "sc_public_subnets" {
 
  tags = {
    Name = "${var.environment} Public Subnet ${count.index + 1}"
+   public = true
  }
 }
  

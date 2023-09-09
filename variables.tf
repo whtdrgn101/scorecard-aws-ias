@@ -1,8 +1,10 @@
 variable "region" {
-  description = "AWS Deployment region.."
+    type = string
+    description = "AWS Deployment region.."
 }
 
 variable "environment" {
+    type = string
     description = "Named environment for application"
 }
 
@@ -25,5 +27,11 @@ variable "azs" {
 }
 
 variable "database_subnet_group_name" {
+    type = string
     description = "Name for database subnet group"
+}
+
+variable "api_app_count" {
+    type = number
+    description = "Count of containers for API"
 }

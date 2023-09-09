@@ -1,7 +1,7 @@
 
 resource "aws_security_group" "sc_database_sg" {
     name        = "${var.environment} PostgreSQL"
-    vpc_id = aws_vpc.sc_vpc.id
+    vpc_id = var.vpc_id
 
     description = "Allow VPC inbound for Postgres from public subnet"
     
@@ -22,7 +22,7 @@ resource "aws_security_group" "sc_database_sg" {
 
 resource "aws_db_subnet_group" "sc_db_subnet_group" {
   name       = "${var.database_subnet_group_name}"
-  subnet_ids = aws_subnet.sc_private_subnets[*].id
+  subnet_ids = var.private_subnet_ids
 
   tags = {
     Name = "${var.environment} DB subnet group"
@@ -40,6 +40,7 @@ resource "aws_db_instance" "sc_db" {
   skip_final_snapshot    = true
   publicly_accessible    = true
   vpc_security_group_ids = [aws_security_group.sc_database_sg.id]
-  username               = "scorecard"
-  password               = "App123!les"
+  username               = "${var.database_user}"
+  password               = "${var.database_password}"
 }
+
