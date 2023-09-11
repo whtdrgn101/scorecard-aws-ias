@@ -4,8 +4,8 @@ resource "aws_security_group" "scorecard_web_sg" {
 
   ingress {
     protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8000
+    to_port     = 8000
     cidr_blocks = var.public_subnet_cidrs
   }
 
@@ -17,24 +17,28 @@ resource "aws_security_group" "scorecard_web_sg" {
   }
 }
 
-/*
-resource "aws_lb" "scorecard_lb" {
-  name            = "scorecard-lb"
-  subnets         = local.public_subnet_ids
-  security_groups = [aws_security_group.scorecard_web_sg.id]
-}
+
 
 resource "aws_lb_target_group" "scorecard_lb_target_group" {
   name        = "scorecard-target-group"
-  port        = 80
+  port        = 8000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.sc_vpc.id
   target_type = "ip"
 }
 
+
+
+resource "aws_lb" "scorecard_lb" {
+  name            = "scorecard-lb"
+  subnets         = aws_subnet.sc_public_subnets.*.id
+  security_groups = [aws_security_group.scorecard_web_sg.id]
+}
+
+
 resource "aws_lb_listener" "scorecard_lb_listener" {
   load_balancer_arn = aws_lb.scorecard_lb.id
-  port              = "80"
+  port              = "8000"
   protocol          = "HTTP"
 
   default_action {
@@ -42,7 +46,7 @@ resource "aws_lb_listener" "scorecard_lb_listener" {
     type             = "forward"
   }
 }
-*/
+
 resource "aws_ecs_task_definition" "scorecard_ecs_task_def" {
   family                   = "scorecard-api"
   network_mode             = "awsvpc"
@@ -80,6 +84,14 @@ resource "aws_ecs_task_definition" "scorecard_ecs_task_def" {
         {
             "name":"SCORECARD_DB",
             "value":"scorecard_db"
+        },
+        {
+            "name":"JWT_SECRET_KEY",
+            "value":"lk76YU_90LOO1"
+        },
+        {
+            "name":"JWT_REFRESH_SECRET_KEY",
+            "value":"B4lq78mn_634b2309zz"
         }
     ]
   }
@@ -119,15 +131,15 @@ resource "aws_ecs_service" "scorecard_service" {
 
   network_configuration {
     security_groups = [aws_security_group.scorecard-api-sg.id]
-    subnets         = aws_subnet.sc_private_subnets.*.id
+    subnets         = aws_subnet.sc_public_subnets.*.id
   }
-/*
+
   load_balancer {
     target_group_arn = aws_lb_target_group.scorecard_lb_target_group.id
     container_name   = "scorecard-api"
     container_port   = 8000
   }
-
+  
   depends_on = [aws_lb_listener.scorecard_lb_listener]
-  */
+  
 }
