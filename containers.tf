@@ -53,7 +53,7 @@ resource "aws_ecs_task_definition" "scorecard_ecs_task_def" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 512
   memory                   = 1024
-
+  
   container_definitions = <<DEFINITION
 [
   {
@@ -130,8 +130,8 @@ resource "aws_ecs_service" "scorecard_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    security_groups = [aws_security_group.scorecard-api-sg.id]
-    subnets         = aws_subnet.sc_public_subnets.*.id
+    security_groups     = [aws_security_group.scorecard-api-sg.id]
+    subnets             = aws_subnet.sc_public_subnets.*.id
   }
 
   load_balancer {
